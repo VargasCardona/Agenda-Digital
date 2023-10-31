@@ -1,2 +1,4 @@
 # Agenda-Digital
-Sistema de gestión para contactos
+Ejercicio realizado por:
+- Nicolás Vargas Cardona
+- Mateo Loaiza García
