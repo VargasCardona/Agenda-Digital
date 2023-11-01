@@ -18,5 +18,8 @@ def obtener_cuenta(usuario: str):
     conexion = hacer_conexion()
     cursor = conexion.cursor()
     cursor.execute(f"SELECT * FROM cuentas WHERE usuario = '{usuario}'")
-    id, user, password, nombre_completo, cedula = cursor.fetchone()
+    usuarios = cursor.fetchall()
+    if len(usuarios) < 1:
+        return None
+    id, user, password, nombre_completo, cedula = usuarios[0]
     return cuenta.Cuenta(id, user, password, nombre_completo, cedula)
