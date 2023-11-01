@@ -1,4 +1,4 @@
-import persona
+import modelos.persona as persona
 
 class Contacto(persona.Persona):
     def __init__(self, id: int, nombre_completo: str, telefono: int, id_cuenta: int):

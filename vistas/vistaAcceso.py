@@ -1,5 +1,7 @@
 import dearpygui.dearpygui as dpg
-import daos.dao_cuenta as dao
+import daos.dao_cuenta as dao_cuenta
+import daos.dao_contacto as dao_contacto
+import modelos.contacto as contacto
 
 dpg.create_context()
 
@@ -10,7 +12,7 @@ def cerrar_vista():
 def iniciar_sesion():
     usuario = dpg.get_value("user")
     contrasenia = dpg.get_value("pass")
-    cuenta = dao.obtener_cuenta(usuario)
+    cuenta = dao_cuenta.obtener_cuenta(usuario)
     if cuenta == None:
         print("No se encontró el usuario")
         return
@@ -25,14 +27,16 @@ def iniciar_sesion():
         with dpg.table(header_row=True, row_background=True,
                    borders_innerH=True, borders_outerH=True, borders_innerV=True,
                    borders_outerV=True):
-          dpg.add_table_column(label="Header 1")
-          dpg.add_table_column(label="Header 2")
-          dpg.add_table_column(label="Header 3")
+            dpg.add_table_column(label="Nombre")
+            dpg.add_table_column(label="Teléfono")
+            
+            contactos = dao_contacto.obtener_lista_contactos(cuenta.id)
 
-          for i in range(0, 4):
-            with dpg.table_row():
-                for j in range(0, 3):
-                    dpg.add_text(f"Row{i} Column{j}")
+            for contacto in contactos:
+                with dpg.table_row():
+                    dpg.add_text(f"{contacto.nombre_completo}")
+                    dpg.add_text(f"{contacto.telefono}")
+
         dpg.add_spacer(height=10)
         dpg.add_button(label="Cerrar Sesión", callback=cerrar_vista)
 
