@@ -18,9 +18,10 @@ def insertar(contacto: contacto.Contacto):
     conexion = hacer_conexion()
     cursor = conexion.cursor()
     query = f'''
-    INSERT INTO contactos VALUES (0, {contacto.nombre_completo}, {contacto.telefono}, {contacto.id_cuenta})
+    INSERT INTO contactos VALUES (0, '{contacto.nombre_completo}', '{contacto.telefono}', '{contacto.id_cuenta}')
     '''
     cursor.execute(query)
+    conexion.commit()
 
 def actualizar(contacto: contacto.Contacto):
     conexion = hacer_conexion()
@@ -29,6 +30,7 @@ def actualizar(contacto: contacto.Contacto):
     UPDATE contactos SET nombre = '{contacto.nombre_completo}', telefono = '{contacto.telefono}' WHERE id = {contacto.id}
     '''
     cursor.execute(query)
+    conexion.commit()
 
 def eliminar(id):
     conexion = hacer_conexion()
@@ -37,4 +39,4 @@ def eliminar(id):
     DELETE FROM contactos WHERE id = {id}
     '''
     cursor.execute(query)
-
+    conexion.commit()
