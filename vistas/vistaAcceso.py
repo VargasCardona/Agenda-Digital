@@ -5,6 +5,15 @@ import modelos.contacto as contacto
 
 dpg.create_context()
 
+def consultar_id():
+    id_contacto = dpg.get_value("browse_id")
+    try:
+        contacto_consultado = dao_cuenta.consultar(id_contacto)
+        dpg.set_value("contact_name", contacto_consultado.nombre())
+        dpg.set_value("telephone_number", contacto_consultado.numero())
+    except Exception as e:
+        crear_notificacion(f"{e}")
+
 def registrar_cuenta():
     cedula = dpg.get_value("cedula")
     full_name = dpg.get_value("full_name")   
@@ -88,6 +97,13 @@ def iniciar_sesion():
                     dpg.add_text(f"{contacto.telefono}")
 
         with dpg.group(horizontal=False):
+          with dpg.group(horizontal=True):
+              with dpg.group(horizontal=False):
+                dpg.add_text("Buscar ID")
+                dpg.add_input_text(tag="browse_id", hint="Ingrese un ID", width=185)
+              with dpg.group(horizontal=False):
+                dpg.add_spacer(height=19)
+                dpg.add_button(label="Consultar", callback=cerrar_vista)
           dpg.add_text("Nombre Contacto")
           dpg.add_input_text(tag="contact_name", hint="Nombre Contacto", width=265)
           dpg.add_text("Numero Telefonico")
