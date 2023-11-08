@@ -1,9 +1,13 @@
 import modelos.cuenta as cuenta
-import excepciones.excepciones_cuenta as excepciones
+import excepciones.excepciones as excepciones
 import mysql.connector as sql
 
+def hacer_conexion():
+    return sql.connect(host="localhost", user="root", password="", database="agenda_digital")
+
+
 def obtener_lista_cuentas():
-    conexion = sql.connect(host="localhost", user="root", password="", database="agenda_digital")
+    conexion = hacer_conexion()
     cursor = conexion.cursor()
     cursor.execute("SELECT * FROM cuentas")
     lista_cuentas = []
@@ -14,7 +18,7 @@ def obtener_lista_cuentas():
 
 def obtener_cuenta(id: str, busqueda_cedula = False):
     tipo = "cedula" if busqueda_cedula else "usuario"
-    conexion = sql.connect(host="localhost", user="root", password="", database="agenda_digital")
+    conexion = hacer_conexion()
     cursor = conexion.cursor()
     cursor.execute(f"SELECT * FROM cuentas WHERE {tipo} = '{id}'")
     usuarios = cursor.fetchall()
@@ -33,8 +37,7 @@ def insertar(cedula, full_name, user, password):
     if obtener_cuenta(user) != None:
         raise excepciones.CuentaEnUsoException()
 
-    conexion = sql.connect(host="localhost", user="root", password="", database="agenda_digital")
+    conexion = hacer_conexion()
     cursor = conexion.cursor()
-
     cursor.execute(f"INSERT INTO cuentas VALUES (0, '{user}', '{password}', '{full_name}', '{cedula}')")
     conexion.commit()

@@ -8,9 +8,9 @@ dpg.create_context()
 def consultar_id():
     id_contacto = dpg.get_value("browse_id")
     try:
-        contacto_consultado = dao_cuenta.consultar(id_contacto)
-        dpg.set_value("contact_name", contacto_consultado.nombre())
-        dpg.set_value("telephone_number", contacto_consultado.numero())
+        contacto_consultado = dao_contacto.consultar(id_contacto, "1")
+        dpg.set_value("contact_name", contacto_consultado.nombre_completo)
+        dpg.set_value("telephone_number", contacto_consultado.telefono)
     except Exception as e:
         crear_notificacion(f"{e}")
 
@@ -30,12 +30,17 @@ def registrar_cuenta():
 def registrar_contacto():
     contact = dpg.get_value("contact_name")
     telephone = dpg.get_value("telephone_number")   
-
     try:
-        dao_cuenta.insertar(cedula, full_name, user_reg, pass_reg)
-        crear_notificacion("Cuenta registrada")
-        dpg.delete_item("register_window")
-        dpg.configure_item("login_window", show=True)
+        dao_contacto.insertar(contact, telephone, "1")
+        crear_notificacion("Contacto registrado")
+    except Exception as e:
+        crear_notificacion(f"{e}")
+
+def eliminar_contacto():
+    id = dpg.get_value("browse_id")   
+    try:
+        dao_contacto.eliminar(id, "1")
+        crear_notificacion("Contacto eliminado")
     except Exception as e:
         crear_notificacion(f"{e}")
 
@@ -78,7 +83,6 @@ def iniciar_sesion():
         return
 
     dpg.configure_item("login_window", show=False)
-    print("si")
     with dpg.window(label=f"Agenda de {cuenta.usuario}", tag="user_view", no_close=True, no_collapse=True, no_resize=True, width=590, height=300, pos=(620,300)):
        with dpg.group(horizontal=True):
         with dpg.table(header_row=True, row_background=True,
@@ -103,16 +107,16 @@ def iniciar_sesion():
                 dpg.add_input_text(tag="browse_id", hint="Ingrese un ID", width=185)
               with dpg.group(horizontal=False):
                 dpg.add_spacer(height=19)
-                dpg.add_button(label="Consultar", callback=cerrar_vista)
+                dpg.add_button(label="Consultar", callback=consultar_id)
           dpg.add_text("Nombre Contacto")
           dpg.add_input_text(tag="contact_name", hint="Nombre Contacto", width=265)
           dpg.add_text("Numero Telefonico")
           dpg.add_input_text(tag="telephone_number", hint="Numero Telefonico", width=265)
           dpg.add_spacer(height=2)
           with dpg.group(horizontal=True):
-           dpg.add_button(label="Registrar", callback=cerrar_vista)
+           dpg.add_button(label="Registrar", callback=registrar_contacto)
            dpg.add_button(label="Editar", callback=cerrar_vista)
-           dpg.add_button(label="Eliminar Contacto", callback=cerrar_vista)
+           dpg.add_button(label="Eliminar Contacto", callback=eliminar_contacto)
 
        dpg.add_spacer(height=10)
        dpg.add_button(label="Cerrar Sesión", callback=lambda: (dpg.delete_item("user_view"), dpg.configure_item("login_window", show=True)))

@@ -1,4 +1,5 @@
 import modelos.contacto as contacto
+import excepciones.excepciones as excepciones
 import mysql.connector as sql
 
 def hacer_conexion():
@@ -14,29 +15,53 @@ def obtener_lista_contactos(id_cuenta_activa):
         lista_contactos.append(contacto.Contacto(id, nombre_completo, telefono, id_cuenta))
     return lista_contactos
 
-def insertar(contacto: contacto.Contacto):
+def consultar(id: str, id_cuenta_activa: str):
+    conexion = hacer_conexion()
+    cursor = conexion.cursor()
+    cursor.execute(f"SELECT * FROM contactos WHERE id = {id} AND id_cuenta = {id_cuenta_activa}")
+    contactos = cursor.fetchall()
+    if len(contactos) < 1:
+        return None
+    id, nombre_completo, telefono, id_cuenta = contactos[0]
+    return contacto.Contacto(id, nombre_completo, telefono, id_cuenta)
+
+def insertar(nombre_completo: str, telefono: str, id_cuenta: str):
+    if nombre_completo == "" or telefono == "":
+        raise excepciones.CamposVaciosException()
+    if telefono.isnumeric() == False:
+        raise excepciones.TelefonoInvalidoException()
     conexion = hacer_conexion()
     cursor = conexion.cursor()
     query = f'''
-    INSERT INTO contactos VALUES (0, '{contacto.nombre_completo}', '{contacto.telefono}', '{contacto.id_cuenta}')
+INSERT INTO contactos VALUES (0, '{nombre_completo}', {telefono}, {id_cuenta})
     '''
     cursor.execute(query)
     conexion.commit()
 
-def actualizar(contacto: contacto.Contacto):
+def actualizar(nombre_completo: str, telefono: str, id: str, id_cuenta: str):
+    if nombre_completo == "" or telefono == "" or id == "":
+        raise excepciones.CamposVaciosException()
+    if telefono.isnumeric() == False:
+        raise excepciones.TelefonoInvalidoException()
+    if consultar(id, id_cuenta) == None:
+        raise excepciones.ContactoNoEncontradoException()
     conexion = hacer_conexion()
     cursor = conexion.cursor()
     query = f'''
-    UPDATE contactos SET nombre = '{contacto.nombre_completo}', telefono = '{contacto.telefono}' WHERE id = {contacto.id}
+UPDATE contactos SET nombre = '{nombre_completo}', telefono = {telefono} WHERE id = {id}
     '''
     cursor.execute(query)
     conexion.commit()
 
-def eliminar(id):
+def eliminar(id: str, id_cuenta: str):
+    if id == "":
+        raise excepciones.CamposVaciosException()
+    if consultar(id, id_cuenta) == None:
+        raise excepciones.ContactoNoEncontradoException()
     conexion = hacer_conexion()
     cursor = conexion.cursor()
     query = f'''
-    DELETE FROM contactos WHERE id = {id}
+DELETE FROM contactos WHERE id = '{id}'
     '''
     cursor.execute(query)
     conexion.commit()

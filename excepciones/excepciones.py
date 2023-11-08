@@ -3,7 +3,7 @@ class CamposVaciosException(Exception):
         super().__init__(message)
 
 class CedulaInvalidaException(Exception):
-    def __init__(self, message="La cédula no es válida"):
+    def __init__(self, message="La cédula debe ser un número"):
         super().__init__(message)
 
 class CedulaEnUsoException(Exception):
@@ -13,3 +13,12 @@ class CedulaEnUsoException(Exception):
 class CuentaEnUsoException(Exception):
     def __init__(self, message="La cuenta se encuentra en uso"):
         super().__init__(message)
+
+class TelefonoInvalidoException(Exception):
+    def __init__(self, message="El teléfono debe ser un número"):
+        super().__init__(message)
+
+class ContactoNoEncontradoException(Exception):
+    def __init__(self, message="El contacto no fue encontrado"):
+        super().__init__(message)
+
