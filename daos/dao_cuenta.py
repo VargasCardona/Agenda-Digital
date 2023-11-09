@@ -5,6 +5,13 @@ import mysql.connector as sql
 def hacer_conexion():
     return sql.connect(host="localhost", user="root", password="", database="agenda_digital")
 
+def validar_campos_vacios(funcion):
+    def decorador(*args):
+        for arg in args:
+            if arg == "":
+                raise excepciones.CamposVaciosException()
+        return funcion(*args)    
+    return decorador
 
 def obtener_lista_cuentas():
     conexion = hacer_conexion()
@@ -39,9 +46,8 @@ def iniciar_sesion(usuario: str, contrasena: str):
         raise excepciones.ContrasenaIncorrectaException()
     return cuenta.Cuenta(id, user, password, nombre_completo, cedula)
 
+@validar_campos_vacios
 def insertar(cedula, full_name, user, password):
-    if cedula == "" or full_name == "" or user == "" or password == "":
-        raise excepciones.CamposVaciosException()
     if cedula.isnumeric() == False:
         raise excepciones.CedulaInvalidaException()
     try:

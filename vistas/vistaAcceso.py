@@ -9,19 +9,19 @@ current_user = None
 
 def mensaje_diario():
     mensajes_semana = {
-    "0": "Lunes, ¡Ánimo, es el comienzo de la semana!",
-    "1": "Martes, ¡Ya es martes, seguimos adelante!",
-    "2": "Miercoles, ¡Mitad de semana, casi allí!",
-    "3": "Jueves, ¡Solo un día más para el fin de semana!",
-    "4": "Viernes, ¡El fin de semana está cerca!",
-    "5": "Sabado, ¡Disfruta tu día!",
-    "6": "Domingo, ¡Relájate y recarga energías para la próxima semana!"
+    "Monday": "Lunes, ¡Ánimo, es el comienzo de la semana!",
+    "Tuesday": "Martes, ¡Ya es martes, seguimos adelante!",
+    "Wednesday": "Miercoles, ¡Mitad de semana, casi allí!",
+    "Thursday": "Jueves, ¡Solo un día más para el fin de semana!",
+    "Friday": "Viernes, ¡El fin de semana está cerca!",
+    "Saturday": "Sabado, ¡Disfruta tu día!",
+    "Sunday": "Domingo, ¡Relájate y recarga energías para la próxima semana!"
     }
 
     ahora = datetime.now()
-    numero_dia_semana = ahora.weekday()
+    palabra_dia_semana = str(ahora.strftime("%A"))
 
-    return mensajes_semana[str(numero_dia_semana)]
+    return mensajes_semana[palabra_dia_semana]
 
 def limpiar_campos():
     dpg.set_value("contact_name", "")
@@ -140,7 +140,7 @@ def iniciar_sesion():
     dpg.configure_item("login_window", show=False)
     dpg.set_value("user", "")
     dpg.set_value("pass", "")
-    with dpg.window(label=f"Agenda de {cuenta.usuario}", tag="user_view", no_close=True, no_collapse=True, no_resize=True, width=590, height=263, pos=(620,300)):
+    with dpg.window(label=f"Agenda de {cuenta.usuario}", tag="user_view", no_close=True, no_collapse=True, no_resize=True, width=590, height=288, pos=(620,300)):
        dpg.add_text(f"Bienvenido! Hoy es {mensaje_diario()}")
        mensaje_diario()
        with dpg.group(horizontal=True):
