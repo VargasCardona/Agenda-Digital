@@ -21,7 +21,7 @@ def consultar(id: str, id_cuenta_activa: str):
     cursor.execute(f"SELECT * FROM contactos WHERE id = {id} AND id_cuenta = {id_cuenta_activa}")
     contactos = cursor.fetchall()
     if len(contactos) < 1:
-        return None
+        raise excepciones.ContactoNoEncontradoException()
     id, nombre_completo, telefono, id_cuenta = contactos[0]
     return contacto.Contacto(id, nombre_completo, telefono, id_cuenta)
 
@@ -43,8 +43,7 @@ def actualizar(nombre_completo: str, telefono: str, id: str, id_cuenta: str):
         raise excepciones.CamposVaciosException()
     if telefono.isnumeric() == False:
         raise excepciones.TelefonoInvalidoException()
-    if consultar(id, id_cuenta) == None:
-        raise excepciones.ContactoNoEncontradoException()
+    consultar(id, id_cuenta)
     conexion = hacer_conexion()
     cursor = conexion.cursor()
     query = f'''
@@ -56,8 +55,7 @@ UPDATE contactos SET nombre = '{nombre_completo}', telefono = {telefono} WHERE i
 def eliminar(id: str, id_cuenta: str):
     if id == "":
         raise excepciones.CamposVaciosException()
-    if consultar(id, id_cuenta) == None:
-        raise excepciones.ContactoNoEncontradoException()
+    consultar(id, id_cuenta)
     conexion = hacer_conexion()
     cursor = conexion.cursor()
     query = f'''

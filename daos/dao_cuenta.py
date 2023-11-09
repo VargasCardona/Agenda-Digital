@@ -23,8 +23,20 @@ def obtener_cuenta(id: str, busqueda_cedula = False):
     cursor.execute(f"SELECT * FROM cuentas WHERE {tipo} = '{id}'")
     usuarios = cursor.fetchall()
     if len(usuarios) < 1:
-        return None
+        raise excepciones.CuentaNoEncontradaException()
     id, user, password, nombre_completo, cedula = usuarios[0]
+    return cuenta.Cuenta(id, user, password, nombre_completo, cedula)
+
+def iniciar_sesion(usuario: str, contrasena: str):
+    conexion = hacer_conexion()
+    cursor = conexion.cursor()
+    cursor.execute(f"SELECT * FROM cuentas WHERE usuario = '{usuario}'")
+    usuarios = cursor.fetchall()
+    if len(usuarios) < 1:
+        raise excepciones.CuentaNoEncontradaException()
+    id, user, password, nombre_completo, cedula = usuarios[0]
+    if contrasena != password:
+        raise excepciones.ContrasenaIncorrectaException()
     return cuenta.Cuenta(id, user, password, nombre_completo, cedula)
 
 def insertar(cedula, full_name, user, password):
@@ -32,10 +44,16 @@ def insertar(cedula, full_name, user, password):
         raise excepciones.CamposVaciosException()
     if cedula.isnumeric() == False:
         raise excepciones.CedulaInvalidaException()
-    if obtener_cuenta(cedula, True) != None:
+    try:
+        obtener_cuenta(cedula, True)
         raise excepciones.CedulaEnUsoException()
-    if obtener_cuenta(user) != None:
+    except excepciones.CuentaNoEncontradaException as e:
+        pass
+    try:
+        obtener_cuenta(user)
         raise excepciones.CuentaEnUsoException()
+    except excepciones.CuentaNoEncontradaException as e:
+        pass 
 
     conexion = hacer_conexion()
     cursor = conexion.cursor()
