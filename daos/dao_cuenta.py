@@ -34,6 +34,7 @@ def obtener_cuenta(id: str, busqueda_cedula = False):
     id, user, password, nombre_completo, cedula = usuarios[0]
     return cuenta.Cuenta(id, user, password, nombre_completo, cedula)
 
+@validar_campos_vacios
 def iniciar_sesion(usuario: str, contrasena: str):
     conexion = hacer_conexion()
     cursor = conexion.cursor()
