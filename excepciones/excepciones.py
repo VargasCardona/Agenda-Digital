@@ -22,3 +22,10 @@ class ContactoNoEncontradoException(Exception):
     def __init__(self, message="El contacto no fue encontrado"):
         super().__init__(message)
 
+class CuentaNoEncontradaException(Exception):
+    def __init__(self, message="La cuenta no fue encontrada"):
+        super().__init__(message)
+
+class ContrasenaIncorrectaException(Exception):
+    def __init__(self, message="La contraseña es incorrecta"):
+        super().__init__(message)

@@ -57,6 +57,18 @@ def registrar_contacto():
     except Exception as e:
         crear_notificacion(f"{e}")
 
+def editar_contacto():
+    id = dpg.get_value("browse_id")   
+    contact = dpg.get_value("contact_name")
+    telephone = dpg.get_value("telephone_number")   
+    try:
+        dao_contacto.actualizar(contact, telephone, id, str(current_user.id))
+        crear_notificacion("Contacto editado")
+        limpiar_campos()
+        limpiar_tabla()
+    except Exception as e:
+        crear_notificacion(f"{e}")
+
 def eliminar_contacto():
     id = dpg.get_value("browse_id")   
     try:
@@ -100,15 +112,12 @@ def iniciar_sesion():
     global current_user
     usuario = dpg.get_value("user")
     contrasenia = dpg.get_value("pass")
-    cuenta = dao_cuenta.obtener_cuenta(usuario)
-
-    if cuenta == None:
-        crear_notificacion("Cuenta no encontrada")
-        return
-        
-    if cuenta.contrasenia != contrasenia:
-        crear_notificacion("Contraseña Incorrecta")
-        return
+    cuenta = None
+    try:
+        cuenta = dao_cuenta.iniciar_sesion(usuario, contrasenia)
+    except Exception as e:
+        crear_notificacion(f"{e}")
+        return        
 
     current_user = cuenta
     dpg.configure_item("login_window", show=False)
@@ -146,7 +155,7 @@ def iniciar_sesion():
           dpg.add_spacer(height=2)
           with dpg.group(horizontal=True):
            dpg.add_button(label="Registrar", callback=registrar_contacto)
-           dpg.add_button(label="Editar", callback=cerrar_vista)
+           dpg.add_button(label="Editar", callback=editar_contacto)
            dpg.add_button(label="Eliminar Contacto", callback=eliminar_contacto)
 
        dpg.add_spacer(height=1)
