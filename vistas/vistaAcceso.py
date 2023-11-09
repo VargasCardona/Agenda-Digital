@@ -4,11 +4,30 @@ import daos.dao_contacto as dao_contacto
 import modelos.contacto as contacto
 
 dpg.create_context()
+current_user = None
+
+def limpiar_campos():
+    dpg.set_value("contact_name", "")
+    dpg.set_value("browse_id", "")
+    dpg.set_value("telephone_number", "")
+
+def limpiar_tabla():
+    global current_user
+    for tag in dpg.get_item_children("contacts_table")[1]:
+        dpg.delete_item(tag)
+
+    contactos = dao_contacto.obtener_lista_contactos(current_user.id)
+
+    for contacto in contactos:
+         with dpg.table_row(parent="contacts_table"):
+            dpg.add_text(f"{contacto.id}")
+            dpg.add_text(f"{contacto.nombre_completo}")
+            dpg.add_text(f"{contacto.telefono}")
 
 def consultar_id():
     id_contacto = dpg.get_value("browse_id")
     try:
-        contacto_consultado = dao_contacto.consultar(id_contacto, "1")
+        contacto_consultado = dao_contacto.consultar(id_contacto, str(current_user.id))
         dpg.set_value("contact_name", contacto_consultado.nombre_completo)
         dpg.set_value("telephone_number", contacto_consultado.telefono)
     except Exception as e:
@@ -31,22 +50,27 @@ def registrar_contacto():
     contact = dpg.get_value("contact_name")
     telephone = dpg.get_value("telephone_number")   
     try:
-        dao_contacto.insertar(contact, telephone, "1")
+        dao_contacto.insertar(contact, telephone, str(current_user.id))
         crear_notificacion("Contacto registrado")
+        limpiar_campos()
+        limpiar_tabla()
     except Exception as e:
         crear_notificacion(f"{e}")
 
 def eliminar_contacto():
     id = dpg.get_value("browse_id")   
     try:
-        dao_contacto.eliminar(id, "1")
+        dao_contacto.eliminar(id, str(current_user.id))
         crear_notificacion("Contacto eliminado")
+        limpiar_campos()
+        limpiar_tabla()
     except Exception as e:
         crear_notificacion(f"{e}")
 
 def cerrar_vista(item_tag):
     dpg.delete_item(item_tag)
     dpg.configure_item("login_window", show=True)
+
 
 def crear_notificacion(mensaje: str):
        with dpg.window(label="Alerta", modal=True, show=True, tag="notificacion", pos=(620,300)):
@@ -67,9 +91,13 @@ def registro_cuenta():
       dpg.add_text("Contraseña")
       dpg.add_input_text(tag="pass_registration", hint="Contraseña", password=True, width=265)
       dpg.add_spacer(height=2)
-      dpg.add_button(label="Registrar Cuenta", track_offset=0.5, callback=registrar_cuenta)
+      with dpg.group(horizontal=True):
+         dpg.add_button(label="Registrar Cuenta", track_offset=0.5, callback=registrar_cuenta)
+         dpg.add_spacer(width=65)
+         dpg.add_button(label="Regresar", callback=lambda: (dpg.delete_item("register_window"), dpg.configure_item("login_window", show=True)))
 
 def iniciar_sesion():
+    global current_user
     usuario = dpg.get_value("user")
     contrasenia = dpg.get_value("pass")
     cuenta = dao_cuenta.obtener_cuenta(usuario)
@@ -82,10 +110,13 @@ def iniciar_sesion():
         crear_notificacion("Contraseña Incorrecta")
         return
 
+    current_user = cuenta
     dpg.configure_item("login_window", show=False)
-    with dpg.window(label=f"Agenda de {cuenta.usuario}", tag="user_view", no_close=True, no_collapse=True, no_resize=True, width=590, height=300, pos=(620,300)):
+    dpg.set_value("user", "")
+    dpg.set_value("pass", "")
+    with dpg.window(label=f"Agenda de {cuenta.usuario}", tag="user_view", no_close=True, no_collapse=True, no_resize=True, width=590, height=263, pos=(620,300)):
        with dpg.group(horizontal=True):
-        with dpg.table(header_row=True, row_background=True,
+        with dpg.table(tag="contacts_table", header_row=True, row_background=True,
                    borders_innerH=True, borders_outerH=True, borders_innerV=True,
                    borders_outerV=True, width=300, height=200):
             dpg.add_table_column(label="Id")
@@ -118,7 +149,7 @@ def iniciar_sesion():
            dpg.add_button(label="Editar", callback=cerrar_vista)
            dpg.add_button(label="Eliminar Contacto", callback=eliminar_contacto)
 
-       dpg.add_spacer(height=10)
+       dpg.add_spacer(height=1)
        dpg.add_button(label="Cerrar Sesión", callback=lambda: (dpg.delete_item("user_view"), dpg.configure_item("login_window", show=True)))
 
 with dpg.window(tag="login_window", label="Iniciar Sesión", no_close=True, no_collapse=True, no_resize=True, width=281, height=155, pos=(620,300)):
